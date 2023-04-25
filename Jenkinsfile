@@ -1,6 +1,6 @@
 pipeline {
   environment {
-        localhost = "192.168.0.11"
+        localhost = "192.168.1.162"
         dockerImage = "myProject"
         tagname = "second"
         registry= "meriemtr/projet"
@@ -28,7 +28,7 @@ pipeline {
         //}
         //stage('MVN SONARQUBE') {
           //  steps {
-            //    sh 'mvn sonar:sonar -Dsonar.projectKey=fouad_achat -Dsonar.host.url=http://${localhost}:9000 -Dsonar.login=311d4bf1a2ee143843a922533048832dd3487f39'
+            //    sh 'mvn sonar:sonar -Dsonar.projectKey=meriem_project -Dsonar.host.url=http://${localhost}:9000 -Dsonar.login=change'
             //}
         //}   
         stage('MVN DEPLOY') {
