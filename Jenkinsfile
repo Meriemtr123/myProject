@@ -5,7 +5,7 @@ pipeline {
         stage('Git') {
             steps {
                 echo "Getting Project from Git";
-                sh "rm -rf myproject"
+                sh "rm -rf myProject"
                 sh "git clone https://github.com/Meriemtr123/myProject.git"
                   }
             }
