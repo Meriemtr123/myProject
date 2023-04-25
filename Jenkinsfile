@@ -44,7 +44,7 @@ pipeline {
         }    
         stage('MVN NEXUS'){
             steps {
-                sh 'mvn clean package deploy:deploy-file -DgroupId=tn.esprit -DartifactId=ExamThourayaS2 -Dversion=1.0 -DgeneratePom=true -Dpackaging=war -DrepositoryId=deploymentRepo -Durl=http://${localhost}:8081/repository/maven-releases/ -Dfile=target/ExamThourayaS2-1.0.jar'
+                sh 'mvn deploy -Dmaven.test.skip=true'
                   }
         }          
    }
