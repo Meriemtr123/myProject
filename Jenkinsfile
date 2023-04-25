@@ -1,4 +1,10 @@
 pipeline {
+    environment {
+        registry = "meriemtr/myproject"
+        registryCredential = 'dockerhub_id'
+        dockerImage = 'myproject'
+    }
+    
     agent any
     
     stages {
@@ -46,6 +52,28 @@ pipeline {
             steps {
                 sh 'mvn deploy -Dmaven.test.skip=true'
                   }
-        }          
+        } 
+        stage('Building our image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
+        stage('Deploy our image') {
+            steps {
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Cleaning up') {
+            steps {
+                sh "docker rmi $registry:$BUILD_NUMBER"
+            }
+        }
+        
    }
 }
