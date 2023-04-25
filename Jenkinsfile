@@ -1,74 +1,51 @@
 pipeline {
-  environment {
-        localhost = "192.168.1.162"
-        dockerImage = "myProject"
-        tagname = "second"
-        registry= "meriemtr/projet"
-	    registryCredential = "dockerRegPwd"
-    }
     agent any
+    
     stages {
-        stage('Clone source code from Git') {
+        stage('Git') {
             steps {
-                echo "Cloning Project from GitHub; Branch : master"
-                git branch: 'master',
-                url: 'https://github.com/Meriemtr123/myProject.git'
+                echo "Getting Project from Git";
+                sh "rm -rf myproject"
+                sh "git clone https://github.com/Meriemtr123/myProject.git"
+                  }
             }
-        }
-        stage('MVN CLEAN') {
-            steps {
-                sh 'mvn -version'
-                sh 'mvn clean'
-            }
-        }
-        //stage('MVN TEST (Mockito)') {
-          //  steps {
-           //     sh 'mvn test'
-            //}
-        //}
-        //stage('MVN SONARQUBE') {
-          //  steps {
-            //    sh 'mvn sonar:sonar -Dsonar.projectKey=meriem_project -Dsonar.host.url=http://${localhost}:9000 -Dsonar.login=change'
-            //}
-        //}   
-        stage('MVN DEPLOY') {
-            steps {
-                sh 'mvn clean package deploy:deploy-file -DgroupId=tn.esprit -DartifactId=achat -Dversion=1.0 -DgeneratePom=true -Dpackaging=war -DrepositoryId=deploymentRepo -Durl=http://${localhost}:8081/repository/maven-releases/ -Dfile=target/achat-1.0.jar'
-            }
-        }
-        stage('BUILD') { 
-            steps { 
-                script { 
-                    timestamps {
-                    dockerImage = docker.build registry
-                    }
-                }
-            } 
-        }
-        stage('PUSH DOCKERHUB') { 
-            steps { 
-                script {
-                        timestamps {
-						  docker.withRegistry ('', registryCredential ) {
-							  dockerImage.push()
-                        }
-                    } 
-                }
-            } 
             
-        }
-         stage('RMV IMG') {
+        stage('MVN Clean'){  
             steps {
-                sh "docker rmi $registry:latest"
-            }
-        }
-           stage('DOCKER-COMPOSE') {
-            steps {
-                sh 'docker-compose down --remove-orphans'
-                sh 'docker-compose -f docker-compose.yml up -d'
-                sh 'docker restart spring-boot-docker-container'
-            }
-        }
+                sh "mvn clean"
+                  }
+        }        
         
-    }
+        stage('MVN Install'){
+            steps {
+                sh "mvn install"
+                  }
+        }       
+        
+        stage('MVN Test'){
+            steps {
+                sh "mvn test"
+                  }
+        }          
+        
+        stage('MVN Package'){
+            steps {
+                sh "mvn package"
+                  }
+        }          
+        
+        stage('MVN SONARQUBE'){
+            steps{
+                sh 'mvn sonar:sonar \
+  -Dsonar.projectKey=myproject \
+  -Dsonar.host.url=http://192.168.1.162:9000 \
+  -Dsonar.login=0a7920153f8d430b6e508640db3dad567bdd05a5'
+                 }
+        }    
+        stage('MVN NEXUS'){
+            steps {
+                sh 'mvn deploy -Dmaven.test.skip=true'
+                  }
+        }          
+   }
 }
